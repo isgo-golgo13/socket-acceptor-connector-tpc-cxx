@@ -1,13 +1,17 @@
-# Socket Acceptor-Connector Thread Per-Connection (POSA 2 C++)
+# Socket Acceptor-Connector Thread Per-Connection
 C++20 POSA 2 Socket Acceptor-Connector Design Pattern for Client and Server using Thread-Per-Connection (TPC) from ACE C++ Framework
 
 
 ## Compiling the Project
 
-To compile the project, create a `dist` directory and from the root of the project.
-
 ```shell
 cmake -S . -B ./dist 
+```
+
+Next produce the exes.
+
+```shell
+cmake --build ./dist
 ```
 
 This root-level CMakeLists.txt will call on the `client/CMakeLists.txt` and `server/CMakeLists.txt` files that in-turn will require to create the `svckit` Unix shared library.
