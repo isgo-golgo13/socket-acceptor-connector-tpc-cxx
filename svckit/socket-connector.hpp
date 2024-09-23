@@ -15,6 +15,7 @@ public:
     ~SocketConnector() = default;
 
     void connect();
+    std::unique_ptr<Socket> getSocket();
     void sendData(const void* buffer, size_t length);
     void recvData(void* buffer, size_t length);
 
