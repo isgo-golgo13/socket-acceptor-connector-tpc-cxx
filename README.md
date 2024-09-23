@@ -34,6 +34,8 @@ The project structure is as follows.
 │   └── server.cpp
 └── svckit
     ├── CMakeLists.txt
+    ├── socket.cpp
+    ├── socket.hpp
     ├── socket-acceptor.cpp
     ├── socket-acceptor.hpp
     ├── socket-addr.cpp
