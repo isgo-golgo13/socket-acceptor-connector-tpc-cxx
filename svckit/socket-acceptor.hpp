@@ -18,11 +18,11 @@ public:
     void bind();
     void listen();
     int acceptConnection();
-    void sendData(int clientSocket, const void* buffer, size_t length);
-    void recvData(int clientSocket, void* buffer, size_t length);
+    void sendData(int clientSocket, const std::vector<char>& buffer);
+    void recvData(int clientSocket, std::vector<char>& buffer);
 
 private:
     int serverSocket_;
     sockaddr_in serverAddr_;
-    std::unique_ptr<Socket> socket_;  // Use Socket class
+    std::unique_ptr<Socket> socket_;
 };
