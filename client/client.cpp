@@ -2,33 +2,26 @@
 #include "socket-addr.hpp"
 #include <iostream>
 #include <memory>
-#include <thread>
-#include <vector>
 
-constexpr int THREAD_COUNT = 100;  // Number of threads/connections
-constexpr auto PAYLOAD = "000000000-1010-Payload";  // Data buffer to send
+constexpr int SESSION_COUNT = 1;  // Number of connections
+constexpr auto PAYLOAD = "Hello, Server!";  // Data to send
+constexpr int BUFFER_SIZE = 1024;
 constexpr int PORT = 8080;
 
-void connectAndSend() {
-    SocketAddr addr("127.0.0.1", PORT);
-    auto connector = std::make_unique<SocketConnector>(addr);
-    
-    connector->connect();
-    connector->sendData(PAYLOAD);
-}
-
 int main() {
-    std::vector<std::thread> threads;
-    threads.reserve(THREAD_COUNT);
+    for (int i = 0; i < SESSION_COUNT; ++i) {
+        // Create and connect SocketConnector
+        SocketAddr addr("127.0.0.1", PORT);
+        SocketConnector connector(addr);
+        connector.connect();
 
-    // Launch 100 threads/connections
-    for (int i = 0; i < THREAD_COUNT; ++i) {
-        threads.emplace_back(connectAndSend);
-    }
+        // Send data
+        connector.sendData(PAYLOAD, strlen(PAYLOAD));
 
-    // Join all threads
-    for (auto& th : threads) {
-        th.join();
+        // Receive response
+        char buffer[BUFFER_SIZE];
+        connector.recvData(buffer, sizeof(buffer));
+        std::cout << "Received from server: " << buffer << std::endl;
     }
 
     return 0;

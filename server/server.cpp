@@ -1,44 +1,43 @@
 #include "socket-acceptor.hpp"
 #include "socket-addr.hpp"
-#include "thread.hpp"
 #include <iostream>
-#include <memory>
 #include <cstring>
 #include <unistd.h>
 
-constexpr int PORT = 8080;  // Port for server to listen on
-constexpr int BUFFER_SIZE = 1024;  // Buffer size for receiving data
+constexpr int PORT = 8080;
+constexpr int BUFFER_SIZE = 1024;
 
-void handleClient(int clientSocket) {
+void handleClient(int clientSocket, SocketAcceptor& acceptor) {
     char buffer[BUFFER_SIZE];
-    ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
 
-    if (bytesRead > 0) {
-        std::cout << "Received data: " << std::string(buffer, bytesRead) << std::endl;
-    }
+    // Receive data from the client
+    acceptor.recvData(clientSocket, buffer, sizeof(buffer));
+    std::cout << "Received: " << buffer << std::endl;
 
-    close(clientSocket);
+    // Send response to the client
+    const char* response = "Hello, Client!";
+    acceptor.sendData(clientSocket, response, strlen(response));
+
+    close(clientSocket);  // Close the connection after handling
 }
 
 int main() {
-    SocketAddr addr("127.0.0.1", PORT);
-    auto acceptor = std::make_unique<SocketAcceptor>(addr);
+    SocketAddr addr("0.0.0.0", PORT);
+    SocketAcceptor acceptor(addr);
 
-    acceptor->bind();
-    acceptor->listen();
+    acceptor.bind();
+    acceptor.listen();
 
     std::cout << "Server is listening on port " << PORT << std::endl;
 
     while (true) {
-        int clientSocket = acceptor->acceptConnection();
-        
-        // Create a thread to handle the client
-        auto thread = std::make_unique<Thread>([clientSocket]() {
-            handleClient(clientSocket);
-        });
-        
-        thread->start();
-        thread->join();  // Join immediately to avoid race conditions
+        int clientSocket = acceptor.acceptConnection();
+        if (clientSocket < 0) continue;
+
+        // Handle each client in a separate thread
+        std::thread([clientSocket, &acceptor]() {
+            handleClient(clientSocket, acceptor);
+        }).detach();
     }
 
     return 0;

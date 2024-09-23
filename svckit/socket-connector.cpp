@@ -1,26 +1,32 @@
 #include "socket-connector.hpp"
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
+#include <memory>
 
-SocketConnector::SocketConnector(const SocketAddr& addr) {
-    clientSocket_ = socket(AF_INET, SOCK_STREAM, 0);
-    serverAddr_.sin_family = AF_INET;
-    serverAddr_.sin_addr.s_addr = inet_addr(addr.getIp().c_str());
-    serverAddr_.sin_port = htons(addr.getPort());
-}
-
-SocketConnector::~SocketConnector() {
-    close(clientSocket_);
+SocketConnector::SocketConnector(const SocketAddr& addr) : serverAddr_(addr), clientSocket_(socket(AF_INET, SOCK_STREAM, 0)) {
+    if (clientSocket_ == -1) {
+        std::cerr << "Socket creation failed!" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    socket_ = std::make_unique<Socket>(clientSocket_);
 }
 
 void SocketConnector::connect() {
-    if (::connect(clientSocket_, (sockaddr*)&serverAddr_, sizeof(serverAddr_)) < 0) {
-        std::cerr << "Connect failed" << std::endl;
+    struct sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_port = htons(serverAddr_.getPort());
+    serverAddr.sin_addr.s_addr = inet_addr(serverAddr_.getIp().c_str());
+
+    if (::connect(clientSocket_, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        std::cerr << "Connection failed!" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
 
-void SocketConnector::sendData(const std::string& data) {
-    send(clientSocket_, data.c_str(), data.size(), 0);
+void SocketConnector::sendData(const void* buffer, size_t length) {
+    socket_->send(clientSocket_, buffer, length);
+}
+
+void SocketConnector::recvData(void* buffer, size_t length) {
+    socket_->recv(clientSocket_, buffer, length);
 }

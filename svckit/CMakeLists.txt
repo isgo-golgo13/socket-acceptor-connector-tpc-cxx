@@ -6,6 +6,7 @@ add_library(svckit SHARED
     socket-acceptor.cpp
     socket-connector.cpp
     socket-addr.cpp
+    socket.cpp
     thread.cpp
 )
 

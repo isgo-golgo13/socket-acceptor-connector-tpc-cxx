@@ -1,9 +1,8 @@
 #pragma once
 
 #include "socket-addr.hpp"
+#include "socket.hpp"
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <memory>
 
 class SocketConnector {
 public:
@@ -13,12 +12,14 @@ public:
     SocketConnector(SocketConnector&& other) noexcept = default;
     SocketConnector& operator=(const SocketConnector& other) = delete;
     SocketConnector& operator=(SocketConnector&& other) noexcept = default;
-    ~SocketConnector();
+    ~SocketConnector() = default;
 
     void connect();
-    void sendData(const std::string& data);
+    void sendData(const void* buffer, size_t length);
+    void recvData(void* buffer, size_t length);
 
 private:
     int clientSocket_;
-    sockaddr_in serverAddr_;
+    SocketAddr serverAddr_;
+    std::unique_ptr<Socket> socket_;  // Use Socket class
 };

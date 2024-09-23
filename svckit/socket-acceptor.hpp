@@ -1,7 +1,7 @@
 #pragma once
 
 #include "socket-addr.hpp"
-#include <memory>
+#include "socket.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 
@@ -18,8 +18,11 @@ public:
     void bind();
     void listen();
     int acceptConnection();
+    void sendData(int clientSocket, const void* buffer, size_t length);
+    void recvData(int clientSocket, void* buffer, size_t length);
 
 private:
     int serverSocket_;
     sockaddr_in serverAddr_;
+    std::unique_ptr<Socket> socket_;  // Use Socket class
 };
