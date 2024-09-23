@@ -15,7 +15,7 @@ void handleClient(int clientSocket, SocketAcceptor& acceptor) {
     std::cout << "Received: " << buffer << std::endl;
 
     // Send response to the client
-    const char* response = "Hello, Client!";
+    const char* response = "ACK of received data for Client!";
     acceptor.sendData(clientSocket, response, strlen(response));
 
     close(clientSocket);  // Close the connection after handling
