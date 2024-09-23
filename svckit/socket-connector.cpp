@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+
 SocketConnector::SocketConnector(const SocketAddr& addr) : serverAddr_(addr), clientSocket_(socket(AF_INET, SOCK_STREAM, 0)) {
     if (clientSocket_ == -1) {
         std::cerr << "Socket creation failed!" << std::endl;
